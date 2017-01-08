@@ -10,10 +10,27 @@ type opCode int
 type regType string
 
 const REGNAMES string = "abcd"
-const NREG int = 4
-const NONE regType = ""
+const NREG int = len(REGNAMES)
+const NOTREG regType = ""
 
 type Registers [NREG]int
+
+// Get returns the value of the named register.
+func (r Registers) Get(regname string) (value int) {
+	i := strings.Index(REGNAMES, regname)
+	if i >= 0 {
+		value = r[i]
+	}
+	return
+}
+
+// Set sets the value of the named register.
+func (r *Registers) Set(regname string, value int) {
+	i := strings.Index(REGNAMES, regname)
+	if i >= 0 {
+		(*r)[i] = value
+	}
+}
 
 const (
 	NOP opCode = iota
@@ -50,7 +67,7 @@ func (i *Inst) String() string {
 		return i.op.name
 	}
 	var x, y string
-	if i.x == "" {
+	if i.x == NOTREG {
 		x = fmt.Sprintf("%d", i.xval)
 	} else {
 		x = string(i.x)
@@ -58,7 +75,7 @@ func (i *Inst) String() string {
 	if i.op.nargs == 1 {
 		return i.op.name + " " + x
 	}
-	if i.y == "" {
+	if i.y == NOTREG {
 		y = fmt.Sprintf("%d", i.yval)
 	} else {
 		y = string(i.y)
@@ -76,8 +93,8 @@ func NewProgram() Program {
 
 // parseArg parses a single instruction argument.  If it names a
 // register, then the register name and index are returned as 'reg' and
-// 'val.  If it's an integer constant, then it's value is returned as
-// 'va; and 'reg' is the empty string.
+// 'val.  If it's an integer constant, then its value is returned as
+// 'val' and 'reg' is the empty string.
 func parseArg(arg string) (reg regType, val int, err error) {
 	val = strings.Index(REGNAMES, arg)
 	if val >= 0 {
@@ -88,9 +105,8 @@ func parseArg(arg string) (reg regType, val int, err error) {
 	return
 }
 
-// compileInst parses single instruction and returns the Inst
-// represnrting that instruction.  If the instruction isn't
-// recognized, and error is returned.
+// compileInst compiles a single parsed instruction into an Inst.
+// If the instruction isn't recognized, an error is returned.
 func compileInst(name string, args []string) (inst Inst, err error) {
 	for _, op := range OPS {
 		if op.name == name {
@@ -100,7 +116,7 @@ func compileInst(name string, args []string) (inst Inst, err error) {
 				return
 			}
 			if op.nargs == 0 {
-				inst = Inst{op, "", 0, "", 0}
+				inst = Inst{op, NOTREG, 0, NOTREG, 0}
 				return
 			}
 			x, xval, perr := parseArg(args[0])
@@ -109,7 +125,7 @@ func compileInst(name string, args []string) (inst Inst, err error) {
 				return
 			}
 			if op.nargs == 1 {
-				inst = Inst{op, x, xval, "", 0}
+				inst = Inst{op, x, xval, NOTREG, 0}
 				return
 			}
 			y, yval, perr := parseArg(args[1])
@@ -143,11 +159,21 @@ func Compile(source []string) (prog Program, err error) {
 	return
 }
 
-func (p *Program) Execute(init Registers) (reg Registers, err error) {
-	for i, val := range init {
+// Execute the program with the given initial register values.
+// The final register values are returned.
+func (p *Program) Execute(initreg Registers) (reg Registers, err error) {
+	reg, _, err = p.ExecuteFrom(initreg, 0)
+	return
+}
+
+// Execute the program starting with a particular program counter and the
+// given initial register values.
+// The final register values and program counter are returned.
+func (p *Program) ExecuteFrom(initreg Registers, initpc int) (reg Registers, pc int, err error) {
+	for i, val := range initreg {
 		reg[i] = val
 	}
-	pc := 0
+	pc = initpc
 	for pc >= 0 && pc < len(p.inst) {
 		inst := p.inst[pc]
 		// fmt.Printf("pc:%02d  a:%d\tb:%d\tc:%d\td:%d\t%s\n", pc,
@@ -160,7 +186,7 @@ func (p *Program) Execute(init Registers) (reg Registers, err error) {
 			reg[inst.xval] -= 1
 			pc += 1
 		case CPY:
-			if inst.x == "" {
+			if inst.x == NOTREG {
 				reg[inst.yval] = inst.xval
 			} else {
 				reg[inst.yval] = reg[inst.xval]
@@ -168,7 +194,7 @@ func (p *Program) Execute(init Registers) (reg Registers, err error) {
 			pc += 1
 		case JNZ:
 			jump := false
-			if inst.x == "" {
+			if inst.x == NOTREG {
 				jump = inst.xval != 0
 			} else {
 				jump = reg[inst.xval] != 0
@@ -176,7 +202,7 @@ func (p *Program) Execute(init Registers) (reg Registers, err error) {
 			if !jump {
 				pc += 1
 			} else {
-				if inst.y == "" {
+				if inst.y == NOTREG {
 					pc += inst.yval
 				} else {
 					pc += reg[inst.yval]

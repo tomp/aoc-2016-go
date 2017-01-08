@@ -24,23 +24,23 @@ func main() {
 	}
 
 	fmt.Println("## Part 1")
-	init := asmbunny.Registers{0, 0, 0, 0}
+	init := asmbunny.Registers{}
 	reg, err := prog.Execute(init)
 
-	fmt.Printf("a: %d \n", reg[0])
-	fmt.Printf("b: %d \n", reg[1])
-	fmt.Printf("c: %d \n", reg[2])
-	fmt.Printf("d: %d \n", reg[3])
+	fmt.Printf("a: %d \n", reg.Get("a"))
+	fmt.Printf("b: %d \n", reg.Get("b"))
+	fmt.Printf("c: %d \n", reg.Get("c"))
+	fmt.Printf("d: %d \n", reg.Get("d"))
 
 	fmt.Println("\n## Part 2")
-	init = asmbunny.Registers{0, 0, 1, 0}
+	init = asmbunny.Registers{}
+	init.Set("c", 1)
 	reg, err = prog.Execute(init)
 
-	fmt.Printf("a: %d \n", reg[0])
-	fmt.Printf("b: %d \n", reg[1])
-	fmt.Printf("c: %d \n", reg[2])
-	fmt.Printf("d: %d \n", reg[3])
-
+	fmt.Printf("a: %d \n", reg.Get("a"))
+	fmt.Printf("b: %d \n", reg.Get("b"))
+	fmt.Printf("c: %d \n", reg.Get("c"))
+	fmt.Printf("d: %d \n", reg.Get("d"))
 }
 
 // read_lines returns the contents of the given file as a slice

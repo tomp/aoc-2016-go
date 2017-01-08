@@ -11,19 +11,19 @@ func TestParseArg(t *testing.T) {
 		inst Inst
 	}{
 		{"cpy", []string{"41", "a"},
-			Inst{OPS[CPY], NONE, 41, "a", 0}},
+			Inst{OPS[CPY], NOTREG, 41, "a", 0}},
 		{"cpy", []string{"a", "b"},
 			Inst{OPS[CPY], "a", 0, "b", 1}},
 		{"inc", []string{"c"},
-			Inst{OPS[INC], "c", 2, NONE, 0}},
+			Inst{OPS[INC], "c", 2, NOTREG, 0}},
 		{"dec", []string{"d"},
-			Inst{OPS[DEC], "d", 3, NONE, 0}},
+			Inst{OPS[DEC], "d", 3, NOTREG, 0}},
 		{"jnz", []string{"a", "2"},
-			Inst{OPS[JNZ], "a", 0, NONE, 2}},
+			Inst{OPS[JNZ], "a", 0, NOTREG, 2}},
 		{"jnz", []string{"1", "2"},
-			Inst{OPS[JNZ], NONE, 1, NONE, 2}},
+			Inst{OPS[JNZ], NOTREG, 1, NOTREG, 2}},
 		{"jnz", []string{"1", "b"},
-			Inst{OPS[JNZ], NONE, 1, "b", 1}},
+			Inst{OPS[JNZ], NOTREG, 1, "b", 1}},
 	}
 
 	for ncase, item := range cases {
@@ -64,7 +64,7 @@ func TestExecute(t *testing.T) {
 
 	init := Registers{}
 	reg, err := prog.Execute(init)
-	if reg[0] != expected {
-		t.Errorf("Register a had value %d  (expected %d)", reg[0], expected)
+	if reg.Get("a") != expected {
+		t.Errorf("Register 'a' had value %d  (expected %d)", reg.Get("a"), expected)
 	}
 }
