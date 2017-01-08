@@ -38,7 +38,7 @@ var OPS = [...]opType{
 }
 
 type Inst struct {
-	op opType
+	op   opType
 	x    regType
 	xval int
 	y    regType
@@ -96,7 +96,7 @@ func compileInst(name string, args []string) (inst Inst, err error) {
 		if op.name == name {
 			if len(args) != op.nargs {
 				err = fmt.Errorf("Op '%s' takes %d arg(s) (found %d)",
-				op.name, op.nargs, len(args))
+					op.name, op.nargs, len(args))
 				return
 			}
 			if op.nargs == 0 {
@@ -149,7 +149,7 @@ func (p *Program) Execute(init Registers) (reg Registers, err error) {
 	}
 	pc := 0
 	for pc >= 0 && pc < len(p.inst) {
-        inst := p.inst[pc]
+		inst := p.inst[pc]
 		// fmt.Printf("pc:%02d  a:%d\tb:%d\tc:%d\td:%d\t%s\n", pc,
 		//   reg[0], reg[1], reg[2], reg[3], inst.String())
 		switch inst.op.code {
@@ -173,7 +173,7 @@ func (p *Program) Execute(init Registers) (reg Registers, err error) {
 			} else {
 				jump = reg[inst.xval] != 0
 			}
-			if ! jump {
+			if !jump {
 				pc += 1
 			} else {
 				if inst.y == "" {
@@ -188,4 +188,3 @@ func (p *Program) Execute(init Registers) (reg Registers, err error) {
 	}
 	return
 }
-

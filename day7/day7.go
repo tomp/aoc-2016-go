@@ -3,8 +3,8 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"os"
 	"github.com/tomp/aoc-2016-go/ipv7"
+	"os"
 )
 
 const (
@@ -53,6 +53,3 @@ func read_lines(filename string) (lines []string, err error) {
 	err = scanner.Err()
 	return
 }
-
-
-

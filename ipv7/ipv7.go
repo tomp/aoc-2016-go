@@ -68,7 +68,7 @@ func allABA(text string) (abas []string) {
 	for i := 0; i <= len(text)-3; i++ {
 		if text[i] == text[i+2] &&
 			text[i] != text[i+1] {
-			abas = append(abas, text[i : i+3])
+			abas = append(abas, text[i:i+3])
 		}
 	}
 	return

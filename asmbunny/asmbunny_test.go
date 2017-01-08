@@ -5,11 +5,11 @@ import (
 )
 
 func TestParseArg(t *testing.T) {
-    cases := [...]struct{
+	cases := [...]struct {
 		name string
 		args []string
 		inst Inst
-	} {
+	}{
 		{"cpy", []string{"41", "a"},
 			Inst{OPS[CPY], NONE, 41, "a", 0}},
 		{"cpy", []string{"a", "b"},
@@ -33,15 +33,15 @@ func TestParseArg(t *testing.T) {
 		}
 		if inst.op.code != item.inst.op.code {
 			t.Errorf("[%d] Got op code %d  (expected %d)", ncase,
-			    inst.op.code, item.inst.op.code)
+				inst.op.code, item.inst.op.code)
 		}
 		if inst.x != item.inst.x || inst.xval != item.inst.xval {
 			t.Errorf("[%d] x=%s xval=%d  (expected %s, %d)", ncase,
-			    inst.x, inst.xval, item.inst.x, item.inst.xval)
+				inst.x, inst.xval, item.inst.x, item.inst.xval)
 		}
 		if inst.y != item.inst.y || inst.yval != item.inst.yval {
 			t.Errorf("[%d] y=%s yval=%d  (expected %s, %d)", ncase,
-			    inst.y, inst.yval, item.inst.y, item.inst.yval)
+				inst.y, inst.yval, item.inst.y, item.inst.yval)
 		}
 	}
 }

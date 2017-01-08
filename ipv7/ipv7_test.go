@@ -6,7 +6,7 @@ import (
 
 func TestFirstABBA(t *testing.T) {
 	cases := [...]struct {
-		text      string
+		text string
 		abba string
 	}{
 		{"abba", "abba"},
@@ -20,14 +20,14 @@ func TestFirstABBA(t *testing.T) {
 		abba := firstABBA(item.text)
 		if abba != item.abba {
 			t.Errorf("[Case %d] Found '%s' in '%s'.  ('%s')", ncase,
-			    abba, item.text, item.abba)
+				abba, item.text, item.abba)
 		}
 	}
 }
 
 func TestAllABA(t *testing.T) {
 	cases := [...]struct {
-		text      string
+		text string
 		abas []string
 	}{
 		{"aba", []string{"aba"}},
@@ -41,11 +41,11 @@ func TestAllABA(t *testing.T) {
 		abas := allABA(item.text)
 		if len(abas) != len(item.abas) {
 			t.Errorf("[Case %d] Found %d ABAs in '%s' (expected %d)", ncase,
-			    len(abas), item.text, len(item.abas))
+				len(abas), item.text, len(item.abas))
 		}
 		if abas[0] != item.abas[0] {
 			t.Errorf("[Case %d] Found '%s' in '%s'.  ('%s')", ncase,
-			    abas[0], item.text, item.abas[0])
+				abas[0], item.text, item.abas[0])
 		}
 	}
 }
@@ -53,7 +53,7 @@ func TestAllABA(t *testing.T) {
 func TestParser(t *testing.T) {
 	cases := [...]struct {
 		addr      string
-		is_tls bool
+		is_tls    bool
 		supernets []string
 		hypernets []string
 	}{
@@ -61,10 +61,10 @@ func TestParser(t *testing.T) {
 		{"abcd[bddb]xyyx", false, []string{"abcd", "xyyx"}, []string{"bddb"}},
 		{"aaaa[qwer]tyui", false, []string{"aaaa", "tyui"}, []string{"qwer"}},
 		{"ioxxoj[asdfgh]zxcvbn", true, []string{"ioxxoj", "zxcvbn"},
-		[]string{"asdfgh"}},
+			[]string{"asdfgh"}},
 		{"oxxo[asdf]cvbn[mnop]qrst", true,
-		[]string{"oxxo", "cvbn", "qrst"},
-		[]string{"asdf", "mnop"}},
+			[]string{"oxxo", "cvbn", "qrst"},
+			[]string{"asdf", "mnop"}},
 	}
 
 	for ncase, item := range cases {
@@ -74,18 +74,18 @@ func TestParser(t *testing.T) {
 		}
 		if len(item.supernets) != len(ip.Supernets) {
 			t.Errorf("[Case %d] Found %d supernets in '%s' (expected %d)",
-			    ncase, len(ip.Supernets), item.addr, len(item.supernets))
+				ncase, len(ip.Supernets), item.addr, len(item.supernets))
 		}
 		if len(item.hypernets) != len(ip.Hypernets) {
 			t.Errorf("[Case %d] Found %d hypernets in '%s' (expected %d)",
-			    ncase, len(ip.Hypernets), item.addr, len(item.hypernets))
+				ncase, len(ip.Hypernets), item.addr, len(item.hypernets))
 		}
-		if item.is_tls && ! ip.IsTLS() {
+		if item.is_tls && !ip.IsTLS() {
 			t.Errorf("[Case %d] Not identified as TLS, '%s'",
-			    ncase, item.addr)
-		} else if ! item.is_tls && ip.IsTLS() {
+				ncase, item.addr)
+		} else if !item.is_tls && ip.IsTLS() {
 			t.Errorf("[Case %d] Incorrectly identified as TLS, '%s'",
-			    ncase, item.addr)
+				ncase, item.addr)
 		}
 
 	}
@@ -94,7 +94,7 @@ func TestParser(t *testing.T) {
 
 func TestSSL(t *testing.T) {
 	cases := [...]struct {
-		addr      string
+		addr   string
 		is_ssl bool
 	}{
 		{"aba[bab]xyz", true},
@@ -108,12 +108,12 @@ func TestSSL(t *testing.T) {
 		if err != nil {
 			t.Errorf("[Case %d] Error parsing '%s'", ncase, item.addr)
 		}
-		if item.is_ssl && ! ip.IsSSL() {
+		if item.is_ssl && !ip.IsSSL() {
 			t.Errorf("[Case %d] Not identified as SSL, '%s'",
-			    ncase, item.addr)
-		} else if ! item.is_ssl && ip.IsSSL() {
+				ncase, item.addr)
+		} else if !item.is_ssl && ip.IsSSL() {
 			t.Errorf("[Case %d] Incorrectly identified as SSL, '%s'",
-			    ncase, item.addr)
+				ncase, item.addr)
 		}
 
 	}
