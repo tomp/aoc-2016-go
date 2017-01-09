@@ -2,6 +2,7 @@ package rtg
 
 import (
 	"fmt"
+	"github.com/tomp/aoc-2016-go/astar"
 	"sort"
 	"strconv"
 	"strings"
@@ -296,4 +297,15 @@ func (s *State) NextStatesOnFloor(newFloor int) (states []*State) {
 		}
 	}
 	return
+}
+
+// AstarNextStates returns the list of reachable states as a slice of
+// astar.SearchState objects.  This method is required for an rtg.State
+// to satisfy the astar.SearchState interface.
+func (s *State) AstarNextStates(visited map[string]bool) []astar.SearchState {
+	result := []astar.SearchState{}
+	for _, state := range s.NextStates(visited) {
+		result = append(result, state)
+	}
+	return result
 }
