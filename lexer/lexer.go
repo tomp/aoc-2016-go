@@ -1,3 +1,14 @@
+// Package lexer provides the core code for a simple Rob-Pike-style lexer.
+//
+// To use this package, the client needs to define state functions using
+// the given utility functions, and then initiate the state machine by
+// calling New with the initial state and the string to be lexed.
+//
+// The client also needs to define item types for the tokens they wish to parse.
+// Item types of value 0 or less are reserved for the lexer package.
+//
+// See lexer_test.go and ipv7/ipv7.go for examples.
+//
 package lexer
 
 import (
@@ -30,8 +41,11 @@ type State struct {
 	items chan Item // channel of scanned items.
 }
 
-func New(name, input string, initState StateFn) (*State, chan Item) {
-	l := &State{
+// New initializes and executes a state machine to lex the given input
+// string.  A State object is returned, along with a read-only channel
+// from which lexed token Items should be read.
+func New(name, input string, initState StateFn) (State, chan Item) {
+	l := State{
 		name:  name,
 		input: input,
 		items: make(chan Item),
@@ -52,13 +66,13 @@ func (l *State) run(initState StateFn) {
 	close(l.items) // No more tokens will be delivered.
 }
 
-// emit passes an item back to the client.
+// Emit passes an Item back to the client.  The item may be empty.
 func (l *State) Emit(t ItemType) {
 	l.items <- Item{t, l.input[l.start:l.pos]}
 	l.start = l.pos
 }
 
-// emit passes an item back to the client.
+// EmitIfToken passes an Item back to the client, if one has been found.
 func (l *State) EmitIfToken(t ItemType) {
 	if l.pos > l.start {
 		l.items <- Item{t, l.input[l.start:l.pos]}
@@ -66,7 +80,7 @@ func (l *State) EmitIfToken(t ItemType) {
 	}
 }
 
-// next returns the next rune in the input.
+// Next returns the next rune in the input.
 func (l *State) Next() (ch rune) {
 	if l.pos >= len(l.input) {
 		l.width = 0
@@ -78,18 +92,19 @@ func (l *State) Next() (ch rune) {
 	return ch
 }
 
-// ignore skips over the pending input before this point.
+// Ignore skips over the pending input before this point.
 func (l *State) Ignore() {
 	l.start = l.pos
 }
 
-// backup steps back one rune.
-// Can be called only once per call of next.
+// Backup steps back one rune.
+// Can only be used once per call of next.
 func (l *State) Backup() {
 	l.pos -= l.width
+	l.width = 0
 }
 
-// peek returns but does not consume
+// Peek returns but does not consume
 // the next rune in the input.
 func (l *State) Peek() (ch rune) {
 	ch = l.Next()
@@ -97,7 +112,7 @@ func (l *State) Peek() (ch rune) {
 	return ch
 }
 
-// accept consumes the next rune
+// Accept consumes the next rune
 // if it's from the valid set.
 func (l *State) Accept(valid string) bool {
 	if strings.IndexRune(valid, l.Next()) >= 0 {
@@ -107,22 +122,23 @@ func (l *State) Accept(valid string) bool {
 	return false
 }
 
-// acceptRun consumes a run of runes from the valid set.
+// AcceptRun consumes a run of runes from the valid set.
 func (l *State) AcceptRun(valid string) {
 	for strings.IndexRune(valid, l.Next()) >= 0 {
 	}
 	l.Backup()
 }
 
-// acceptRunUntil consumes a run of runes up to the first occurrence of
-// a run in the stope set.
+// AcceptRunUntil consumes a run of runes up to the first occurrence of
+// a run in the stop set.
 func (l *State) AcceptRunUntil(stop string) {
-	for strings.IndexRune(stop, l.Next()) < 0 {
+	ch := l.Peek()
+	for ; ch != EOF && strings.IndexRune(stop, ch) < 0; ch = l.Next() {
 	}
 	l.Backup()
 }
 
-// error returns an error token and terminates the scan
+// Errorf returns an error token and terminates the scan
 // by passing back a nil pointer that will be the next
 // state, terminating l.run.
 func (l *State) Errorf(format string, args ...interface{}) StateFn {
